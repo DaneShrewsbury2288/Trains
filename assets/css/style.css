@@ -1,0 +1,25 @@
+
+#container {
+    margin-left: 10%;
+    margin-right: 15%;
+}
+
+#jumbotron {
+    background-color: #778899;
+}
+
+#current-train-card {
+    background-color: #1E90FF;
+    color: white;
+    font-style: bold;
+}
+
+#card-add-train {
+    background-color: #1E90FF;
+    color: white;
+    font-style: bold;
+}
+
+#initialRow {
+    font-weight: bold;
+}
