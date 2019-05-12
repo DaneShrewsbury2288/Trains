@@ -12,6 +12,12 @@ $(document).ready(function () {
 
     firebase.initializeApp(config);
 
+    setInterval(function (startTime) {
+
+        $("#current-time").html("Current time: " + moment().format('hh:mm a'))
+
+    }, 1000);
+
     // Create variable to reference firebase database
     var database = firebase.database();
 
@@ -19,8 +25,8 @@ $(document).ready(function () {
     var TrainName = "";
     var Destination = "";
     var Frequency = 0;
-    var NextArrival = 0;
-    var MinutesAway = 0;
+    var FirstTrain = "";
+   
 
     // On-click function for submit button to create new user-inputs to send to firebase database
     $("#submit-button").on("click", function () {
@@ -30,13 +36,13 @@ $(document).ready(function () {
         TrainName = $("#TrainName-input").val().trim();
         Destination = $("#Destination-input").val().trim();
         Frequency = $("#Frequency-input").val().trim();
-        NextArrival = $("#NextArrival-input").val().trim();
+        FirstTrain = $("#FirstTrain-input").val().trim();
 
 
         console.log("Train name: " + TrainName);
         console.log("Destination: " + Destination);
         console.log("Frequency: " + Frequency);
-        console.log("Next Arrival: " + NextArrival);
+        console.log("First Train: " + FirstTrain);
 
 
         // Push inputs to firebase
@@ -44,38 +50,57 @@ $(document).ready(function () {
             TrainName: TrainName,
             Destination: Destination,
             Frequency: Frequency,
-            NextArrival: NextArrival,
+            FirstTrain: FirstTrain,
         });
 
         $("#TrainName-input").val("");
         $("#Destination-input").val("");
         $("#Frequency-input").val("");
-        $("#NextArrival-input").val("");
+        $("#FirstTrain-input").val("");
     })
 
-    database.ref().on("child_added", function(snapshot) {
+    database.ref().on("child_added", function (snapshot) {
 
         console.log(snapshot.val());
 
-        var NewRow = $("<hr>");
+        // Calculating current time to be used later for comparison
+        var currentTime = moment().format('hh:mm a');
+        console.log("Current Time: " + currentTime);
 
-        var TrainNameDiv = $("<div>").text(snapshot.val().TrainName); 
+        // Grabbing variable of first train start time
+        var FirstTrain = snapshot.val().FirstTrain;
+        console.log("First Train: " + FirstTrain);
+
+        // Converting the first train time into varibale
+        var FirstTimeConverted = moment(FirstTrain, "hh:mm");
+        console.log("FirstTimeConverted: " + FirstTimeConverted);
+
+        // Calculating the difference in time between train and current time
+        var differenceTime = moment().diff(moment(FirstTimeConverted), "minutes");
+        console.log("Time Difference(in minutes): " + differenceTime);
+
+        var Frequency = snapshot.val().Frequency;
+        console.log("Frequency: " + Frequency);
+
+        var timeRemainder = differenceTime % Frequency;
+
+        var minutesAway = Frequency - timeRemainder;
+        console.log("Minutes Away: " + minutesAway);
+
+        var NextArrival = moment().add(minutesAway, "m").format("hh:mm A");
+
+        var TrainNameDiv = $("<div>").text(snapshot.val().TrainName);
         var DestinationDiv = $("<div>").text(snapshot.val().Destination);
         var FrequencyDiv = $("<div>").text(snapshot.val().Frequency);
-        var NextArrivalDiv = $("<div>").text(snapshot.val().NextArrival);
+        var minutesAwayDiv = $("<div>").text(minutesAway);
+        var NextArrivalDiv = $("<div>").text(NextArrival);
 
-
-
-        $("#NewTrainRow").append(NewRow);
         $("#TrainName").append(TrainNameDiv);
         $("#Destination").append(DestinationDiv);
         $("#Frequency").append(FrequencyDiv);
         $("#NextArrival").append(NextArrivalDiv);
-        
-        
-
-
-
+        $("#MinutesAway").append(minutesAwayDiv);
+      
     });
 
 

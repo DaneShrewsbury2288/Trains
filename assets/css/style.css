@@ -8,6 +8,11 @@
     background-color: #778899;
 }
 
+#current-time {
+    margin-left: 40%;
+    
+}
+
 #current-train-card {
     background-color: #1E90FF;
     color: white;
